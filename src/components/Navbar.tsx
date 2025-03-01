@@ -1,4 +1,4 @@
-import { Link } from "lucide-react";
+import Link from "next/link";
 import DesktopNavbar from "./DesktopNavbar";
 import MobileNavbar from "./MobileNavbar";
 import { currentUser } from "@clerk/nextjs/server";
@@ -25,4 +25,4 @@ async function Navbar() {
     </nav>
   );
 }
-export default Navbar
+export default Navbar;
