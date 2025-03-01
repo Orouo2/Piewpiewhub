@@ -19,8 +19,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Socially",
-  description: "A modern social media application powered by Next.js",
+  title: "PiewPiewHub",
+  description: "Un reseau pour envoyer un max de Piew",
 };
 
 export default function RootLayout({
