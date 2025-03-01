@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getDbUserId } from "./user.action";
+import cloudinary from "@/lib/cloudinary";
 
 export async function getProfileByUsername(username: string) {
   try {
