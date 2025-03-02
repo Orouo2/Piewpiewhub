@@ -151,12 +151,24 @@ export async function getUserLikedPosts(userId: string) {
 export async function updateProfile(formData: FormData) {
   try {
     const { userId: clerkId } = await auth();
-    if (!clerkId) throw new Error("Unauthorized");
+    if (!clerkId) throw new Error("Non autorisé");
 
     const name = formData.get("name") as string;
     const bio = formData.get("bio") as string;
     const location = formData.get("location") as string;
     const website = formData.get("website") as string;
+    const image = formData.get("image") as File;
+
+    let imageUrl = null;
+
+    // Si une image a été téléchargée, on l'upload sur Cloudinary
+    if (image) {
+      const imageBuffer = await image.arrayBuffer();
+      const uploadResponse = await cloudinary.uploader.upload(`data:${image.type};base64,${Buffer.from(imageBuffer).toString('base64')}`, {
+        folder: "profile_images", // Choisir un dossier pour les images de profil
+      });
+      imageUrl = uploadResponse.secure_url;
+    }
 
     const user = await prisma.user.update({
       where: { clerkId },
@@ -165,14 +177,15 @@ export async function updateProfile(formData: FormData) {
         bio,
         location,
         website,
+        image: imageUrl, // Mettre à jour l'URL de l'image si l'utilisateur a téléchargé une nouvelle photo
       },
     });
 
     revalidatePath("/profile");
     return { success: true, user };
   } catch (error) {
-    console.error("Error updating profile:", error);
-    return { success: false, error: "Failed to update profile" };
+    console.error("Erreur lors de la mise à jour du profil:", error);
+    return { success: false, error: "Échec de la mise à jour du profil" };
   }
 }
 

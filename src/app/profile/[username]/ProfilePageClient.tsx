@@ -57,18 +57,32 @@ function ProfilePageClient({
     bio: user.bio || "",
     location: user.location || "",
     website: user.website || "",
+    image: null as File | null,
   });
 
   const handleEditSubmit = async () => {
     const formData = new FormData();
     Object.entries(editForm).forEach(([key, value]) => {
-      formData.append(key, value);
+      if (value !== null) {
+        formData.append(key, value);
+      }
     });
-
+  
+    if (editForm.image) {
+      formData.append("image", editForm.image);
+    }
+  
     const result = await updateProfile(formData);
     if (result.success) {
       setShowEditDialog(false);
-      toast.success("Profile updated successfully");
+      toast.success("Profil mis à jour avec succès");
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEditForm({ ...editForm, image: file });
     }
   };
 
@@ -264,6 +278,14 @@ function ProfilePageClient({
                   placeholder="Your personal website"
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Photo de profil</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
             </div>
             <div className="flex justify-end gap-3">
               <DialogClose asChild>
