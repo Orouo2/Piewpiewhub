@@ -14,8 +14,11 @@ import {
 } from 'recharts';
 import { Search } from 'lucide-react';
 import { ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import { useTheme } from "next-themes";
 
 const CryptoGraph = () => {
+  const { theme } = useTheme();
+  
   // États pour les données et les options de l'utilisateur
   const [chartData, setChartData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,7 +28,7 @@ const CryptoGraph = () => {
   const [currency, setCurrency] = useState('usd');
   const [chartType, setChartType] = useState('line');
   const [priceInfo, setPriceInfo] = useState({ price: '0.00', change: '0.00' });
-  const [cryptoList, setCryptoList] = useState([]);
+  const [cryptoList, setCryptoList] = useState<{ id: string; symbol: string; name: string; image: string; current_price: number; market_cap_rank: number; price_change_percentage_24h: number; }[]>([]);
   const [isLoadingList, setIsLoadingList] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
@@ -181,7 +184,7 @@ const CryptoGraph = () => {
   const trendColor = isPositive ? '#2ecc71' : '#e74c3c';
 
   // Obtenir le nom complet de la cryptomonnaie sélectionnée
-  const selectedCryptoInfo = cryptoList.find((crypto: { id: string; symbol: string; name: string; image: string; current_price: number; market_cap_rank: number; price_change_percentage_24h: number }) => crypto.id === selectedCrypto) as { id: string; symbol: string; name: string; image: string; current_price: number; market_cap_rank: number; price_change_percentage_24h: number } | undefined;
+  const selectedCryptoInfo = cryptoList.find((crypto) => crypto.id === selectedCrypto);
   const cryptoName = selectedCryptoInfo ? `${selectedCryptoInfo.name} (${selectedCryptoInfo.symbol})` : selectedCrypto;
 
   // Formatter les valeurs monétaires
@@ -192,8 +195,26 @@ const CryptoGraph = () => {
     return `0.00 ${currency.toUpperCase()}`;
   };
 
+  // Définir les couleurs en fonction du thème
+  const isDarkTheme = theme === 'dark';
+  
+  // Couleurs adaptatives
+  const bgColor = isDarkTheme ? 'bg-gray-900' : 'bg-white';
+  const cardBgColor = isDarkTheme ? 'bg-gray-800' : 'bg-gray-100';
+  const borderColor = isDarkTheme ? 'border-gray-700' : 'border-gray-200';
+  const textColor = isDarkTheme ? 'text-white' : 'text-gray-900';
+  const subTextColor = isDarkTheme ? 'text-gray-300' : 'text-gray-600';
+  const inputBgColor = isDarkTheme ? 'bg-gray-700' : 'bg-gray-200';
+  const buttonHoverColor = isDarkTheme ? 'hover:bg-gray-700' : 'hover:bg-gray-200';
+  const chartGridColor = isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  const chartAxisColor = isDarkTheme ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
+  const chartTickColor = isDarkTheme ? '#ccc' : '#666';
+  const tooltipBgColor = isDarkTheme ? 'bg-gray-800' : 'bg-white';
+  const tooltipBorderColor = isDarkTheme ? 'border-gray-700' : 'border-gray-200';
+  const selectedBgColor = isDarkTheme ? 'bg-gray-700' : 'bg-gray-200';
+
   return (
-    <div className="w-full bg-gray-900 text-white rounded-lg shadow-lg p-4">
+    <div className={`w-full ${bgColor} ${textColor} rounded-lg shadow-lg p-4 transition-colors`}>
       {/* En-tête du graphique */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
         <div>
@@ -213,7 +234,7 @@ const CryptoGraph = () => {
           {/* Sélecteur de cryptomonnaies avec recherche */}
           <div className="relative">
             <div 
-              className="bg-gray-800 text-white px-3 py-1 rounded border border-gray-700 flex items-center gap-2 cursor-pointer"
+              className={`${cardBgColor} ${textColor} px-3 py-1 rounded border ${borderColor} flex items-center gap-2 cursor-pointer transition-colors`}
               onClick={() => setShowDropdown(!showDropdown)}
             >
               {selectedCryptoInfo && selectedCryptoInfo.image && (
@@ -226,18 +247,18 @@ const CryptoGraph = () => {
             </div>
             
             {showDropdown && (
-              <div className="absolute z-10 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-md shadow-lg max-h-96 overflow-y-auto">
-                <div className="sticky top-0 bg-gray-800 p-2 border-b border-gray-700">
+              <div className={`absolute z-10 mt-1 w-64 ${cardBgColor} border ${borderColor} rounded-md shadow-lg max-h-96 overflow-y-auto transition-colors`}>
+                <div className={`sticky top-0 ${cardBgColor} p-2 border-b ${borderColor} transition-colors`}>
                   <div className="relative">
                     <input
                       type="text"
-                      className="w-full bg-gray-700 rounded-md py-1 px-3 pl-8 text-white"
+                      className={`w-full ${inputBgColor} rounded-md py-1 px-3 pl-8 ${textColor} transition-colors`}
                       placeholder="Rechercher..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       onClick={(e) => e.stopPropagation()}
                     />
-                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                    <Search className={`absolute left-2 top-1/2 transform -translate-y-1/2 ${subTextColor} transition-colors`} size={16} />
                   </div>
                 </div>
                 
@@ -246,17 +267,17 @@ const CryptoGraph = () => {
                 ) : filteredCryptoList.length === 0 ? (
                   <div className="p-4 text-center">Aucun résultat</div>
                 ) : (
-                  filteredCryptoList.map((crypto: { id: string; symbol: string; name: string; image: string; current_price: number; market_cap_rank: number; price_change_percentage_24h: number }) => (
+                  filteredCryptoList.map((crypto) => (
                     <div
                       key={crypto.id}
-                      className={`p-2 hover:bg-gray-700 cursor-pointer flex items-center justify-between ${selectedCrypto === crypto.id ? 'bg-gray-700' : ''}`}
+                      className={`p-2 ${buttonHoverColor} cursor-pointer flex items-center justify-between ${selectedCrypto === crypto.id ? selectedBgColor : ''} transition-colors`}
                       onClick={() => handleSelectCrypto(crypto.id)}
                     >
                       <div className="flex items-center">
-                        <span className="text-gray-400 mr-2 w-6 text-center">#{crypto.market_cap_rank}</span>
+                        <span className={`${subTextColor} mr-2 w-6 text-center transition-colors`}>#{crypto.market_cap_rank}</span>
                         <img src={crypto.image} alt={crypto.symbol} className="w-5 h-5 mr-2" />
                         <span>{crypto.name}</span>
-                        <span className="ml-2 text-gray-400 text-xs">{crypto.symbol}</span>
+                        <span className={`ml-2 ${subTextColor} text-xs transition-colors`}>{crypto.symbol}</span>
                       </div>
                       <div className={crypto.price_change_percentage_24h >= 0 ? 'text-green-500' : 'text-red-500'}>
                         {crypto.price_change_percentage_24h?.toFixed(1)}%
@@ -269,7 +290,7 @@ const CryptoGraph = () => {
           </div>
           
           <select 
-            className="bg-gray-800 text-white px-3 py-1 rounded border border-gray-700"
+            className={`${cardBgColor} ${textColor} px-3 py-1 rounded border ${borderColor} transition-colors`}
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
           >
@@ -279,7 +300,7 @@ const CryptoGraph = () => {
           </select>
           
           <select 
-            className="bg-gray-800 text-white px-3 py-1 rounded border border-gray-700"
+            className={`${cardBgColor} ${textColor} px-3 py-1 rounded border ${borderColor} transition-colors`}
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
           >
@@ -289,7 +310,7 @@ const CryptoGraph = () => {
           </select>
           
           <select 
-            className="bg-gray-800 text-white px-3 py-1 rounded border border-gray-700"
+            className={`${cardBgColor} ${textColor} px-3 py-1 rounded border ${borderColor} transition-colors`}
             value={chartType}
             onChange={(e) => setChartType(e.target.value)}
           >
@@ -300,7 +321,7 @@ const CryptoGraph = () => {
       </div>
       
       {/* Graphique */}
-      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700" style={{ height: '400px' }}>
+      <div className={`${cardBgColor} p-4 rounded-lg border ${borderColor} transition-colors`} style={{ height: '400px' }}>
         {isLoading ? (
           <div className="h-full flex items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -313,19 +334,19 @@ const CryptoGraph = () => {
           <ResponsiveContainer width="100%" height="100%">
             {chartType === 'line' ? (
               <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
                 <XAxis 
                   dataKey="date" 
-                  tick={{ fill: '#ccc' }} 
-                  axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
-                  tickLine={{ stroke: 'rgba(255,255,255,0.2)' }}
+                  tick={{ fill: chartTickColor }} 
+                  axisLine={{ stroke: chartAxisColor }}
+                  tickLine={{ stroke: chartAxisColor }}
                   minTickGap={30}
                 />
                 <YAxis 
-                  tick={{ fill: '#ccc' }} 
+                  tick={{ fill: chartTickColor }} 
                   domain={['auto', 'auto']}
-                  axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
-                  tickLine={{ stroke: 'rgba(255,255,255,0.2)' }}
+                  axisLine={{ stroke: chartAxisColor }}
+                  tickLine={{ stroke: chartAxisColor }}
                   tickFormatter={formatCurrency}
                   orientation="right"
                 />
@@ -333,8 +354,8 @@ const CryptoGraph = () => {
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className="bg-gray-800 p-3 border border-gray-700 rounded shadow-lg">
-                          <p className="text-gray-300 mb-1">{new Date(payload[0].payload.timestamp).toLocaleString()}</p>
+                        <div className={`${tooltipBgColor} p-3 border ${tooltipBorderColor} rounded shadow-lg transition-colors`}>
+                          <p className={`${subTextColor} mb-1 transition-colors`}>{new Date(payload[0].payload.timestamp).toLocaleString()}</p>
                           <p className="font-semibold" style={{ color: trendColor }}>
                             {formatCurrency(payload[0].value)}
                           </p>
@@ -350,7 +371,7 @@ const CryptoGraph = () => {
                   stroke={trendColor} 
                   strokeWidth={2}
                   dot={false}
-                  activeDot={{ r: 6, fill: trendColor, stroke: 'white', strokeWidth: 2 }}
+                  activeDot={{ r: 6, fill: trendColor, stroke: isDarkTheme ? 'white' : 'black', strokeWidth: 2 }}
                 />
               </LineChart>
             ) : (
@@ -361,19 +382,19 @@ const CryptoGraph = () => {
                     <stop offset="95%" stopColor={trendColor} stopOpacity={0.1}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
                 <XAxis 
                   dataKey="date" 
-                  tick={{ fill: '#ccc' }} 
-                  axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
-                  tickLine={{ stroke: 'rgba(255,255,255,0.2)' }}
+                  tick={{ fill: chartTickColor }} 
+                  axisLine={{ stroke: chartAxisColor }}
+                  tickLine={{ stroke: chartAxisColor }}
                   minTickGap={30}
                 />
                 <YAxis 
-                  tick={{ fill: '#ccc' }} 
+                  tick={{ fill: chartTickColor }} 
                   domain={['auto', 'auto']}
-                  axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
-                  tickLine={{ stroke: 'rgba(255,255,255,0.2)' }}
+                  axisLine={{ stroke: chartAxisColor }}
+                  tickLine={{ stroke: chartAxisColor }}
                   tickFormatter={formatCurrency}
                   orientation="right"
                 />
@@ -381,8 +402,8 @@ const CryptoGraph = () => {
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className="bg-gray-800 p-3 border border-gray-700 rounded shadow-lg">
-                          <p className="text-gray-300 mb-1">{new Date(payload[0].payload.timestamp).toLocaleString()}</p>
+                        <div className={`${tooltipBgColor} p-3 border ${tooltipBorderColor} rounded shadow-lg transition-colors`}>
+                          <p className={`${subTextColor} mb-1 transition-colors`}>{new Date(payload[0].payload.timestamp).toLocaleString()}</p>
                           <p className="font-semibold" style={{ color: trendColor }}>
                             {formatCurrency(payload[0].value)}
                           </p>
@@ -398,7 +419,7 @@ const CryptoGraph = () => {
                   stroke={trendColor} 
                   fill="url(#gradientColor)" 
                   strokeWidth={2}
-                  activeDot={{ r: 6, fill: trendColor, stroke: 'white', strokeWidth: 2 }}
+                  activeDot={{ r: 6, fill: trendColor, stroke: isDarkTheme ? 'white' : 'black', strokeWidth: 2 }}
                 />
               </AreaChart>
             )}
@@ -411,9 +432,9 @@ const CryptoGraph = () => {
         {timeRangeOptions.map(option => (
           <button
             key={option.value}
-            className={`px-3 py-1 text-sm rounded ${timeRange === option.value 
+            className={`px-3 py-1 text-sm rounded transition-colors ${timeRange === option.value 
               ? 'bg-blue-600 text-white' 
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+              : `${cardBgColor} ${subTextColor} ${buttonHoverColor}`}`}
             onClick={() => setTimeRange(option.value)}
           >
             {option.label}
