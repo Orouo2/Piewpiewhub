@@ -2,6 +2,7 @@
 
 import {
   BellIcon,
+  Bitcoin,
   HomeIcon,
   LogOutIcon,
   MenuIcon,
@@ -53,6 +54,13 @@ function MobileNavbar() {
               <Link href="/">
                 <HomeIcon className="w-4 h-4" />
                 Home
+              </Link>
+            </Button>
+
+            <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild onClick={() => setShowMobileMenu(false)}>
+              <Link href="/Crypto">
+                <Bitcoin className="w-4 h-4" />
+                Crypto
               </Link>
             </Button>
 
