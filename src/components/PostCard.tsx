@@ -12,6 +12,7 @@ import { DeleteAlertDialog } from "./DeleteAlertDialog";
 import { Button } from "./ui/button";
 import { HeartIcon, LogInIcon, MessageCircleIcon, SendIcon } from "lucide-react";
 import { Textarea } from "./ui/textarea";
+import YouTubePreview from "./YouTubePreview";
 
 type Posts = Awaited<ReturnType<typeof getPosts>>;
 type Post = Posts[number];
@@ -71,6 +72,8 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
     }
   };
 
+  const youtubeLink = post.content ? post.content.match(/https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+/g) : null;
+
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-4 sm:p-6">
@@ -103,7 +106,13 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
                   <DeleteAlertDialog isDeleting={isDeleting} onDelete={handleDeletePost} />
                 )}
               </div>
-              <p className="mt-2 text-sm text-foreground break-words">{post.content}</p>
+              <p className="mt-2 text-sm text-foreground break-words">
+                {post.content ? post.content.replace(youtubeLink?.[0] || "", "").trim() : ""}
+              </p>
+
+
+              {/* Afficher l'aperçu vidéo YouTube si un lien est trouvé */}
+              {youtubeLink && <YouTubePreview url={youtubeLink[0]} />}
             </div>
           </div>
 
