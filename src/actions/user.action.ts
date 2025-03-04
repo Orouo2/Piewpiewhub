@@ -161,3 +161,21 @@ export async function toggleFollow(targetUserId: string) {
     return { success: false, error: "Error toggling follow" };
   }
 }
+
+export async function getFollowedUsers(userId: string) {
+  return prisma.user.findMany({
+    where: {
+      followers: {
+        some: {
+          followerId: userId
+        }
+      }
+    },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      image: true
+    }
+  });
+}

@@ -2,11 +2,11 @@ import { currentUser } from "@clerk/nextjs/server";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import { Button } from "./ui/button";
-import { getUserByClerkId } from "@/actions/user.action";
+import { getUserByClerkId, getFollowedUsers } from "@/actions/user.action";
 import Link from "next/link";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { Separator } from "./ui/separator";
-import { LinkIcon, MapPinIcon } from "lucide-react";
+import { LinkIcon, MapPinIcon, UsersIcon } from "lucide-react";
 
 async function Sidebar() {
   const authUser = await currentUser();
@@ -15,8 +15,11 @@ async function Sidebar() {
   const user = await getUserByClerkId(authUser.id);
   if (!user) return null;
 
+  // Fetch followed users
+  const followedUsers = await getFollowedUsers(user.id);
+
   return (
-    <div className="sticky top-20">
+    <div className="sticky top-20 space-y-4">
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center text-center">
@@ -69,6 +72,41 @@ async function Sidebar() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* New Following Users Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <UsersIcon className="w-5 h-5 mr-2" />
+            Following
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {followedUsers.length > 0 ? (
+            <div className="space-y-3">
+              {followedUsers.map((followedUser) => (
+                <Link 
+                  key={followedUser.id} 
+                  href={`/profile/${followedUser.username}`} 
+                  className="flex items-center hover:bg-accent/50 p-2 rounded-md transition-colors"
+                >
+                  <Avatar className="w-10 h-10 mr-3">
+                    <AvatarImage src={followedUser.image || "/avatar.png"} />
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">{followedUser.name}</p>
+                    <p className="text-xs text-muted-foreground">@{followedUser.username}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground">
+              You are not following anyone yet.
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
