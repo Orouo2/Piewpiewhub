@@ -4,12 +4,15 @@ import Link from "next/link";
 import { SignInButton, UserButton } from "@clerk/nextjs";
 import ModeToggle from "./ModeToggle";
 import { currentUser } from "@clerk/nextjs/server";
+import UserSearch from "./UserSearch";
 
 async function DesktopNavbar() {
   const user = await currentUser();
 
   return (
     <div className="hidden md:flex items-center space-x-4">
+      <UserSearch />
+
       <ModeToggle />
 
       <Button variant="ghost" className="flex items-center gap-2" asChild>

@@ -16,6 +16,7 @@ import { useState } from "react";
 import { useAuth, SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
 import Link from "next/link";
+import UserSearch from "./UserSearch";
 
 function MobileNavbar() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -28,6 +29,8 @@ function MobileNavbar() {
 
   return (
     <div className="flex md:hidden items-center space-x-2">
+      <UserSearch />
+
       <Button
         variant="ghost"
         size="icon"
